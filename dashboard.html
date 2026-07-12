@@ -31,7 +31,7 @@
       padding: 2rem 1.5rem;
       display: flex;
       flex-direction: column;
-      gap: 2rem;
+      gap: 1.5rem;
       min-height: 100vh;
       position: fixed;
       top: 0;
@@ -40,6 +40,19 @@
       overflow-y: auto;
       transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       z-index: 1000;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
     }
 
     .sidebar.closed {
@@ -109,29 +122,29 @@
     .sidebar-nav {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.3rem;
       flex: 1;
     }
 
     .sidebar-nav .nav-label {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       text-transform: uppercase;
       letter-spacing: 0.15em;
-      color: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.15);
       margin-top: 0.5rem;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.2rem;
     }
 
     .sidebar-nav a {
       display: flex;
       align-items: center;
       gap: 0.8rem;
-      padding: 0.7rem 1rem;
-      border-radius: 12px;
+      padding: 0.5rem 0.8rem;
+      border-radius: 10px;
       color: rgba(255, 255, 255, 0.5);
       text-decoration: none;
-      transition: all 0.25s ease;
-      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
       font-weight: 500;
     }
 
@@ -146,8 +159,8 @@
     }
 
     .sidebar-nav a .nav-icon {
-      width: 1.3rem;
-      height: 1.3rem;
+      width: 1.2rem;
+      height: 1.2rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -165,11 +178,11 @@
     }
 
     .sidebar-footer {
-      padding-top: 1.5rem;
+      padding-top: 1rem;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       display: flex;
       flex-direction: column;
-      gap: 0.8rem;
+      gap: 0.6rem;
     }
 
     .sidebar-footer .user-info {
@@ -179,15 +192,15 @@
     }
 
     .sidebar-footer .user-avatar {
-      width: 2.2rem;
-      height: 2.2rem;
+      width: 2rem;
+      height: 2rem;
       border-radius: 50%;
       background: rgba(138, 180, 248, 0.15);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: #8ab4f8;
     }
 
@@ -196,13 +209,13 @@
     }
 
     .sidebar-footer .user-details .name {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: rgba(255, 255, 255, 0.8);
     }
 
     .sidebar-footer .user-details .role {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: rgba(255, 255, 255, 0.3);
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -212,14 +225,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.6rem;
-      padding: 0.6rem 1rem;
+      gap: 0.5rem;
+      padding: 0.5rem 0.8rem;
       border-radius: 30px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.06);
       color: rgba(255, 255, 255, 0.4);
       font-family: 'Inter', sans-serif;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       cursor: pointer;
       transition: all 0.25s ease;
       font-weight: 500;
@@ -232,8 +245,8 @@
     }
 
     .sidebar-footer .logout-btn .icon {
-      width: 1rem;
-      height: 1rem;
+      width: 0.9rem;
+      height: 0.9rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -281,6 +294,10 @@
 
     .hamburger-btn:hover {
       background: rgba(255, 255, 255, 0.12);
+    }
+
+    .hamburger-btn.hidden {
+      display: none !important;
     }
 
     .hamburger-btn .icon {
@@ -627,30 +644,104 @@
         </svg>
       </div>
       <div>
-        <h1>Kingdom</h1>
-        <span>Realm Management</span>
+        <h1>The System</h1>
+        <span>Awakening Arise</span>
       </div>
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-label">Navigation</div>
+      <div class="nav-label">Menu</div>
       <a href="#" class="active">
         <span class="nav-icon">
           <svg viewBox="0 0 24 24">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
           </svg>
         </span>
-        Overview
+        Profile
       </a>
       <a href="#">
         <span class="nav-icon">
           <svg viewBox="0 0 24 24">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
           </svg>
         </span>
-        Quests
+        Daily Reward
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4M12 16h.01"/>
+          </svg>
+        </span>
+        Shop
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4v16h16"/>
+            <polyline points="20 10 12 18 8 14"/>
+          </svg>
+        </span>
+        Inventory
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+            <polyline points="17 6 23 6 23 12"/>
+          </svg>
+        </span>
+        Upgrades
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </span>
+        PvP Battle
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </span>
+        Quiz
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </span>
+        Leaderboard
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/>
+          </svg>
+        </span>
+        Dungeon Raid
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+            <path d="M12 2v20"/>
+          </svg>
+        </span>
+        Character Skins
       </a>
       <a href="#">
         <span class="nav-icon">
@@ -659,17 +750,26 @@
             <polyline points="12 6 12 12 16 14"/>
           </svg>
         </span>
-        History
+        1v1 Challenge
       </a>
-      <div class="nav-label" style="margin-top:1rem;">Management</div>
       <a href="#">
         <span class="nav-icon">
           <svg viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
         </span>
-        Settings
+        Messages
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </span>
+        Guild System
       </a>
     </nav>
 
@@ -697,7 +797,7 @@
   <main class="main-content" id="mainContent">
     <div class="page-header">
       <div class="header-left">
-        <h2>Welcome back, <span id="greetingName">User</span></h2>
+        <h2>Welcome, <span id="greetingName">User</span></h2>
       </div>
       <span class="role-badge" id="roleBadge">Hunter</span>
     </div>
@@ -812,12 +912,19 @@
         sidebar.classList.toggle('open');
         overlay.classList.toggle('active');
         mainContent.classList.toggle('expanded');
+        
+        if (sidebar.classList.contains('open')) {
+          hamburger.classList.add('hidden');
+        } else {
+          hamburger.classList.remove('hidden');
+        }
       }
 
       function closeSidebar() {
         sidebar.classList.remove('open');
         overlay.classList.remove('active');
         mainContent.classList.remove('expanded');
+        hamburger.classList.remove('hidden');
       }
 
       hamburger.addEventListener('click', toggleSidebar);
