@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard · Hunter & Ruler</title>
+  <title>Dashboard · The System</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet" />
@@ -1086,7 +1089,7 @@
       <div class="profile-details">
         <div class="detail-item">
           <span class="label">User</span>
-          <span class="value" id="profileUser">abrahamdw882</span>
+          <span class="value" id="profileUser">user@email.com</span>
         </div>
         <div class="detail-item">
           <span class="label">Rank</span>
@@ -1225,91 +1228,161 @@
   </main>
 
   <script>
-    (function() {
-      const role = localStorage.getItem('userRole') || 'Hunter';
-      const name = localStorage.getItem('userName') || 'User';
-      const email = localStorage.getItem('userEmail') || 'user@example.com';
+    // ===== YOUR FIREBASE CONFIG =====
+    const firebaseConfig = {
+      apiKey: "AIzaSyD5RrLOsUpb8_iMqiPpXLWxbKv5_uMtjxk",
+      authDomain: "project-awakening-12b14.firebaseapp.com",
+      projectId: "project-awakening-12b14",
+      storageBucket: "project-awakening-12b14.firebasestorage.app",
+      messagingSenderId: "1071395495768",
+      appId: "1:1071395495768:web:3dd54163ffb24078e1586c"
+    };
 
-      document.getElementById('userName').textContent = name;
-      document.getElementById('userRole').textContent = role;
-      document.getElementById('greetingName').textContent = name;
-      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-      document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
-      document.getElementById('profileName').textContent = name;
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-      const badge = document.getElementById('roleBadge');
-      badge.textContent = role;
-      if (role.toLowerCase() === 'hunter') {
-        badge.classList.add('hunter');
-      } else if (role.toLowerCase() === 'ruler') {
-        badge.classList.add('ruler');
+    // ===== CHECK AUTH & LOAD USER DATA =====
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
       }
 
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      const hamburger = document.getElementById('hamburgerBtn');
-      const mainContent = document.getElementById('mainContent');
+      db.collection('users').doc(user.uid).get()
+        .then((doc) => {
+          if (doc.exists) {
+            const data = doc.data();
+            
+            // Update sidebar
+            document.getElementById('userName').textContent = data.name || 'User';
+            document.getElementById('userRole').textContent = data.role || 'Hunter';
+            document.getElementById('userAvatar').textContent = (data.name || 'U').charAt(0).toUpperCase();
+            
+            // Update header
+            document.getElementById('greetingName').textContent = data.name || 'User';
+            
+            // Update badge
+            const badge = document.getElementById('roleBadge');
+            badge.textContent = data.role || 'Hunter';
+            if ((data.role || '').toLowerCase() === 'hunter') {
+              badge.classList.add('hunter');
+            } else if ((data.role || '').toLowerCase() === 'ruler') {
+              badge.classList.add('ruler');
+            }
+            
+            // Update profile
+            document.getElementById('profileName').textContent = data.name || 'User';
+            document.getElementById('profileAvatar').textContent = (data.name || 'U').charAt(0).toUpperCase();
+            document.getElementById('profileUser').textContent = user.email || 'user@email.com';
+            document.getElementById('profileRank').textContent = data.rank || 'E';
+            document.getElementById('profileXp').textContent = data.xp || 0;
+            document.getElementById('profileGold').textContent = (data.gold || 100) + ' 🪙';
+            
+            // Update XP progress
+            const xp = data.xp || 0;
+            const nextXp = 5000;
+            const progress = Math.min((xp / nextXp) * 100, 100);
+            document.getElementById('currentXp').textContent = xp;
+            document.getElementById('rankProgress').style.width = progress + '%';
+          }
+        })
+        .catch((error) => {
+          console.error('Error loading user data:', error);
+        });
+    });
 
-      function toggleSidebar() {
-        sidebar.classList.toggle('open');
-        overlay.classList.toggle('active');
-        mainContent.classList.toggle('expanded');
-        
-        if (sidebar.classList.contains('open')) {
-          hamburger.classList.add('hidden');
-        } else {
-          hamburger.classList.remove('hidden');
-        }
-      }
+    // ===== SIDEBAR TOGGLE =====
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const hamburger = document.getElementById('hamburgerBtn');
+    const mainContent = document.getElementById('mainContent');
 
-      function closeSidebar() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('active');
-        mainContent.classList.remove('expanded');
+    function toggleSidebar() {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+      mainContent.classList.toggle('expanded');
+      
+      if (sidebar.classList.contains('open')) {
+        hamburger.classList.add('hidden');
+      } else {
         hamburger.classList.remove('hidden');
       }
+    }
 
-      hamburger.addEventListener('click', toggleSidebar);
-      overlay.addEventListener('click', closeSidebar);
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+      mainContent.classList.remove('expanded');
+      hamburger.classList.remove('hidden');
+    }
 
-      document.getElementById('logoutBtn').addEventListener('click', function() {
-        localStorage.clear();
+    hamburger.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', closeSidebar);
+
+    // ===== LOGOUT =====
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      auth.signOut().then(() => {
         window.location.href = 'index.html';
       });
+    });
 
-      document.querySelectorAll('.sidebar-nav a').forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
-          this.classList.add('active');
-          if (window.innerWidth <= 768) {
-            closeSidebar();
-          }
-        });
-      });
-
-      let claimed = false;
-      document.getElementById('claimBtn').addEventListener('click', function() {
-        if (!claimed) {
-          claimed = true;
-          this.textContent = 'Claimed!';
-          this.classList.add('claimed');
-          alert('🎉 Daily reward claimed! +14.0 XP & +7.0 Gold');
-        }
-      });
-
-      document.querySelectorAll('.action-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          alert('Action: ' + this.textContent.trim());
-        });
-      });
-
-      window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
+    // ===== SIDEBAR NAV =====
+    document.querySelectorAll('.sidebar-nav a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        if (window.innerWidth <= 768) {
           closeSidebar();
         }
       });
-    })();
+    });
+
+    // ===== DAILY REWARD =====
+    let claimed = false;
+    document.getElementById('claimBtn').addEventListener('click', function() {
+      if (!claimed) {
+        claimed = true;
+        this.textContent = 'Claimed!';
+        this.classList.add('claimed');
+        
+        // Update XP and Gold in Firestore
+        const user = auth.currentUser;
+        if (user) {
+          db.collection('users').doc(user.uid).update({
+            xp: firebase.firestore.FieldValue.increment(14),
+            gold: firebase.firestore.FieldValue.increment(7)
+          }).then(() => {
+            alert('🎉 Daily reward claimed! +14.0 XP & +7.0 Gold');
+            // Refresh page to show updated values
+            window.location.reload();
+          }).catch((error) => {
+            console.error('Error updating rewards:', error);
+            alert('Error claiming reward. Please try again.');
+          });
+        }
+      }
+    });
+
+    // ===== ACTION BUTTONS =====
+    document.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        alert('Action: ' + this.textContent.trim());
+      });
+    });
+
+    // ===== RESIZE HANDLER =====
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 768) {
+        closeSidebar();
+      }
+    });
+
+    // ===== SET CURRENT DAY =====
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const today = days[new Date().getDay()];
+    document.getElementById('currentDay').textContent = 'Today: ' + today;
   </script>
 </body>
-</html>
+                                                   </html>
