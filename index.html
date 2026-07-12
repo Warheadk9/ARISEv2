@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>glass · hunter & ruler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at 20% 30%, #1f2b4b, #0b0f1a);
+      padding: 1.5rem;
+    }
+
+    .glass-panel {
+      max-width: 420px;
+      width: 100%;
+      padding: 3rem 2rem;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px) saturate(180%);
+      -webkit-backdrop-filter: blur(8px) saturate(180%);
+      border-radius: 3.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+      transition: backdrop-filter 0.2s ease;
+      text-align: center;
+    }
+
+    .glass-panel h2 {
+      font-weight: 400;
+      font-size: 1.1rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 2.5rem;
+      word-spacing: 0.5em;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.8rem;
+      width: 100%;
+    }
+
+    .glass-btn {
+      width: 100%;
+      max-width: 280px;
+      padding: 1.2rem 1.8rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+      color: white;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px) saturate(200%);
+      -webkit-backdrop-filter: blur(12px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 60px;
+      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      transition: all 0.25s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2), transparent 70%);
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    .btn-hunter {
+      background: rgba(220, 180, 120, 0.18);
+      border-color: rgba(255, 215, 150, 0.35);
+      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 215, 150, 0.4);
+    }
+    .btn-hunter:hover {
+      background: rgba(220, 180, 120, 0.35);
+      border-color: rgba(255, 215, 150, 0.7);
+      transform: scale(1.03);
+      box-shadow: 0 16px 35px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 215, 150, 0.2);
+    }
+
+    .btn-ruler {
+      background: rgba(120, 180, 220, 0.18);
+      border-color: rgba(150, 215, 255, 0.35);
+      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(150, 215, 255, 0.4);
+    }
+    .btn-ruler:hover {
+      background: rgba(120, 180, 220, 0.35);
+      border-color: rgba(150, 215, 255, 0.7);
+      transform: scale(1.03);
+      box-shadow: 0 16px 35px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(150, 215, 255, 0.2);
+    }
+
+    .glass-btn:active {
+      transform: scale(0.96);
+      transition-duration: 0.08s;
+    }
+
+    .glass-btn .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.7rem;
+      height: 1.7rem;
+      flex-shrink: 0;
+    }
+
+    .glass-btn .icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .glass-btn:hover::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 60px;
+      background: conic-gradient(from 120deg at 50% 50%, transparent, rgba(255,255,255,0.1), transparent 60%);
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glass-btn span {
+      position: relative;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .glass-btn .label {
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .credit {
+      margin-top: 2.5rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.15);
+      transition: color 0.2s;
+    }
+    .credit:hover {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .glass-btn:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.6);
+      outline-offset: 4px;
+    }
+
+    @media (max-width: 480px) {
+      .glass-panel {
+        padding: 2rem 1.2rem;
+        border-radius: 2.5rem;
+      }
+      .glass-panel h2 {
+        font-size: 0.85rem;
+        letter-spacing: 0.2em;
+        margin-bottom: 2rem;
+      }
+      .glass-btn {
+        max-width: 240px;
+        padding: 1rem 1.2rem;
+        font-size: 1.3rem;
+        border-radius: 50px;
+      }
+      .glass-btn .icon {
+        width: 1.4rem;
+        height: 1.4rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .glass-panel {
+        padding: 1.5rem 0.8rem;
+      }
+      .button-group {
+        gap: 1.2rem;
+      }
+      .glass-btn {
+        max-width: 200px;
+        font-size: 1.1rem;
+        padding: 0.8rem 0.8rem;
+      }
+      .glass-btn .icon {
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="glass-panel">
+  <h2>✦ command center ✦</h2>
+
+  <div class="button-group">
+    <button class="glass-btn btn-hunter" aria-label="Hunter">
+      <span>
+        <span class="icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </span>
+        <span class="label">Hunter</span>
+      </span>
+    </button>
+
+    <button class="glass-btn btn-ruler" aria-label="Ruler">
+      <span>
+        <span class="icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3v18h18" />
+            <path d="M18 7v2" />
+            <path d="M14 7v6" />
+            <path d="M10 7v10" />
+            <path d="M6 7v14" />
+          </svg>
+        </span>
+        <span class="label">Ruler</span>
+      </span>
+    </button>
+  </div>
+
+  <div class="credit">The System Choose You</div>
+</div>
+
+<script>
+  (function() {
+    const hunterBtn = document.querySelector('.btn-hunter');
+    const rulerBtn = document.querySelector('.btn-ruler');
+
+    function handleClick(role) {
+      const btn = role === 'hunter' ? hunterBtn : rulerBtn;
+      btn.style.transition = 'transform 0.1s ease';
+      btn.style.transform = 'scale(0.94)';
+      setTimeout(() => {
+        btn.style.transform = '';
+      }, 120);
+      console.log(`🟢 ${role.charAt(0).toUpperCase() + role.slice(1)} button activated`);
+    }
+
+    if (hunterBtn) {
+      hunterBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleClick('hunter');
+      });
+    }
+    if (rulerBtn) {
+      rulerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        handleClick('ruler');
+      });
+    }
+
+    const allBtns = document.querySelectorAll('.glass-btn');
+    allBtns.forEach(btn => {
+      btn.addEventListener('touchstart', () => {}, { passive: true });
+    });
+  })();
+</script>
+
+</body>
+</html>
