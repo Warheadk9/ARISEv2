@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hunter & Ruler</title>
+  <title>The System · Awakening Arise</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet" />
@@ -39,6 +42,47 @@
       position: relative;
     }
 
+    .glass-panel .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .glass-panel .brand-icon {
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+    }
+
+    .glass-panel .brand-icon svg {
+      width: 1.8rem;
+      height: 1.8rem;
+      stroke: #8ab4f8;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .glass-panel h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.02em;
+    }
+
+    .glass-panel .subtitle {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+    }
+
     .glass-panel h2 {
       font-weight: 400;
       font-size: 1.1rem;
@@ -47,7 +91,6 @@
       color: rgba(255, 255, 255, 0.35);
       margin-bottom: 2.5rem;
       word-spacing: 0.5em;
-      transition: opacity 0.3s ease;
     }
 
     .button-group {
@@ -410,6 +453,17 @@
       display: none !important;
     }
 
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.8rem;
+      margin-top: -0.5rem;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
     @media (max-width: 480px) {
       .glass-panel {
         padding: 2rem 1.2rem;
@@ -503,7 +557,16 @@
   </button>
 
   <div id="mainMenu">
-    <h2>✦ command center ✦</h2>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h1>The System</h1>
+    </div>
+    <div class="subtitle">Awakening Arise</div>
+    <h2>✦ Choose Your Path ✦</h2>
     <div class="button-group">
       <button class="glass-btn btn-hunter" id="hunterBtn" aria-label="Hunter">
         <span>
@@ -540,7 +603,8 @@
     
     <input type="text" id="nameInput" placeholder="Full name" />
     <input type="email" id="emailInput" placeholder="Email address" />
-    <input type="password" id="passwordInput" placeholder="Password" />
+    <input type="password" id="passwordInput" placeholder="Password (min 6 characters)" />
+    <div class="error-msg" id="errorMsg"></div>
     
     <div class="auth-actions">
       <button class="auth-btn" id="submitAuthBtn">
@@ -562,122 +626,189 @@
 </div>
 
 <script>
-  (function() {
-    const mainMenu = document.getElementById('mainMenu');
-    const authForm = document.getElementById('authForm');
-    const backBtn = document.getElementById('backBtn');
-    const hunterBtn = document.getElementById('hunterBtn');
-    const rulerBtn = document.getElementById('rulerBtn');
-    const formTitle = document.getElementById('formTitle');
-    const formSubtitle = document.getElementById('formSubtitle');
-    const roleDisplay = document.getElementById('roleDisplay');
-    const submitLabel = document.getElementById('submitLabel');
-    const toggleHighlightBtn = document.getElementById('toggleHighlightBtn');
-    const togglePrefix = document.getElementById('togglePrefix');
-    const submitAuthBtn = document.getElementById('submitAuthBtn');
-    const nameInput = document.getElementById('nameInput');
-    const emailInput = document.getElementById('emailInput');
-    const passwordInput = document.getElementById('passwordInput');
+  // ===== YOUR FIREBASE CONFIG =====
+  const firebaseConfig = {
+    apiKey: "AIzaSyD5RrLOsUpb8_iMqiPpXLWxbKv5_uMtjxk",
+    authDomain: "project-awakening-12b14.firebaseapp.com",
+    projectId: "project-awakening-12b14",
+    storageBucket: "project-awakening-12b14.firebasestorage.app",
+    messagingSenderId: "1071395495768",
+    appId: "1:1071395495768:web:3dd54163ffb24078e1586c"
+  };
 
-    let currentRole = 'Hunter';
-    let isSignIn = false;
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-    function showAuthForm(role) {
-      currentRole = role;
-      roleDisplay.textContent = role;
-      mainMenu.style.display = 'none';
-      authForm.classList.add('active');
-      backBtn.classList.add('visible');
-      updateFormMode();
+  // ===== DOM ELEMENTS =====
+  const mainMenu = document.getElementById('mainMenu');
+  const authForm = document.getElementById('authForm');
+  const backBtn = document.getElementById('backBtn');
+  const hunterBtn = document.getElementById('hunterBtn');
+  const rulerBtn = document.getElementById('rulerBtn');
+  const formTitle = document.getElementById('formTitle');
+  const formSubtitle = document.getElementById('formSubtitle');
+  const roleDisplay = document.getElementById('roleDisplay');
+  const submitLabel = document.getElementById('submitLabel');
+  const toggleHighlightBtn = document.getElementById('toggleHighlightBtn');
+  const togglePrefix = document.getElementById('togglePrefix');
+  const submitAuthBtn = document.getElementById('submitAuthBtn');
+  const nameInput = document.getElementById('nameInput');
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const errorMsg = document.getElementById('errorMsg');
+
+  let currentRole = 'Hunter';
+  let isSignIn = false;
+
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      window.location.href = 'dashboard.html';
+    }
+  });
+
+  function showAuthForm(role) {
+    currentRole = role;
+    roleDisplay.textContent = role;
+    mainMenu.style.display = 'none';
+    authForm.classList.add('active');
+    backBtn.classList.add('visible');
+    errorMsg.classList.remove('show');
+    updateFormMode();
+  }
+
+  function hideAuthForm() {
+    mainMenu.style.display = 'block';
+    authForm.classList.remove('active');
+    backBtn.classList.remove('visible');
+    nameInput.value = '';
+    emailInput.value = '';
+    passwordInput.value = '';
+    errorMsg.classList.remove('show');
+    isSignIn = false;
+    updateFormMode();
+  }
+
+  function updateFormMode() {
+    if (isSignIn) {
+      formTitle.textContent = 'Welcome Back';
+      formSubtitle.textContent = `Sign in as ${currentRole}`;
+      submitLabel.textContent = 'Sign In';
+      togglePrefix.textContent = "Don't have an account?";
+      toggleHighlightBtn.textContent = 'Sign Up';
+      nameInput.style.display = 'none';
+    } else {
+      formTitle.textContent = 'Create Account';
+      formSubtitle.textContent = `Join as ${currentRole}`;
+      submitLabel.textContent = 'Sign Up';
+      togglePrefix.textContent = 'Already have an account?';
+      toggleHighlightBtn.textContent = 'Sign In';
+      nameInput.style.display = 'block';
+    }
+  }
+
+  function showError(message) {
+    errorMsg.textContent = message;
+    errorMsg.classList.add('show');
+  }
+
+  function handleAuthSubmit() {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    
+    if (!email || !password) {
+      showError('Please fill in all required fields.');
+      return;
     }
 
-    function hideAuthForm() {
-      mainMenu.style.display = 'block';
-      authForm.classList.remove('active');
-      backBtn.classList.remove('visible');
-      nameInput.value = '';
-      emailInput.value = '';
-      passwordInput.value = '';
-      isSignIn = false;
-      updateFormMode();
+    if (password.length < 6) {
+      showError('Password must be at least 6 characters.');
+      return;
     }
 
-    function updateFormMode() {
-      if (isSignIn) {
-        formTitle.textContent = 'Welcome Back';
-        formSubtitle.textContent = `Sign in as ${currentRole}`;
-        submitLabel.textContent = 'Sign In';
-        togglePrefix.textContent = "Don't have an account?";
-        toggleHighlightBtn.textContent = 'Sign Up';
-        nameInput.style.display = 'none';
-      } else {
-        formTitle.textContent = 'Create Account';
-        formSubtitle.textContent = `Join as ${currentRole}`;
-        submitLabel.textContent = 'Sign Up';
-        togglePrefix.textContent = 'Already have an account?';
-        toggleHighlightBtn.textContent = 'Sign In';
-        nameInput.style.display = 'block';
-      }
-    }
+    errorMsg.classList.remove('show');
+    submitAuthBtn.disabled = true;
+    submitAuthBtn.textContent = 'Loading...';
 
-    function handleAuthSubmit() {
-      const email = emailInput.value.trim();
-      const password = passwordInput.value.trim();
-      
-      if (!email || !password) {
-        alert('Please fill in all required fields.');
+    if (!isSignIn) {
+      const name = nameInput.value.trim();
+      if (!name) {
+        showError('Please enter your full name.');
+        submitAuthBtn.disabled = false;
+        submitAuthBtn.textContent = 'Sign Up';
         return;
       }
 
-      if (!isSignIn) {
-        const name = nameInput.value.trim();
-        if (!name) {
-          alert('Please enter your full name.');
-          return;
-        }
-        localStorage.setItem('userRole', currentRole);
-        localStorage.setItem('userName', name);
-        localStorage.setItem('userEmail', email);
-        window.location.href = 'dashboard.html';
-      } else {
-        localStorage.setItem('userRole', currentRole);
-        localStorage.setItem('userEmail', email);
-        window.location.href = 'dashboard.html';
-      }
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          return db.collection('users').doc(user.uid).set({
+            name: name,
+            email: email,
+            role: currentRole,
+            xp: 0,
+            gold: 100,
+            rank: 'E',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        })
+        .then(() => {
+          submitAuthBtn.disabled = false;
+          submitAuthBtn.textContent = 'Sign Up';
+          window.location.href = 'dashboard.html';
+        })
+        .catch((error) => {
+          submitAuthBtn.disabled = false;
+          submitAuthBtn.textContent = 'Sign Up';
+          showError(error.message);
+        });
+    } else {
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          submitAuthBtn.disabled = false;
+          submitAuthBtn.textContent = 'Sign In';
+          window.location.href = 'dashboard.html';
+        })
+        .catch((error) => {
+          submitAuthBtn.disabled = false;
+          submitAuthBtn.textContent = 'Sign In';
+          showError(error.message);
+        });
     }
+  }
 
-    hunterBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      showAuthForm('Hunter');
+  hunterBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    showAuthForm('Hunter');
+  });
+
+  rulerBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    showAuthForm('Ruler');
+  });
+
+  backBtn.addEventListener('click', hideAuthForm);
+
+  toggleHighlightBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    isSignIn = !isSignIn;
+    errorMsg.classList.remove('show');
+    updateFormMode();
+  });
+
+  submitAuthBtn.addEventListener('click', handleAuthSubmit);
+
+  document.querySelectorAll('.auth-form input').forEach(input => {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        handleAuthSubmit();
+      }
     });
+  });
 
-    rulerBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      showAuthForm('Ruler');
-    });
-
-    backBtn.addEventListener('click', hideAuthForm);
-
-    toggleHighlightBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isSignIn = !isSignIn;
-      updateFormMode();
-    });
-
-    submitAuthBtn.addEventListener('click', handleAuthSubmit);
-
-    document.querySelectorAll('.auth-form input').forEach(input => {
-      input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          handleAuthSubmit();
-        }
-      });
-    });
-
-    document.querySelectorAll('.glass-btn, .auth-btn, .toggle-highlight').forEach(btn => {
-      btn.addEventListener('touchstart', () => {}, { passive: true });
-    });
-  })();
+  document.querySelectorAll('.glass-btn, .auth-btn, .toggle-highlight').forEach(btn => {
+    btn.addEventListener('touchstart', () => {}, { passive: true });
+  });
 </script>
 
 </body>
