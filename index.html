@@ -635,12 +635,15 @@
           alert('Please enter your full name.');
           return;
         }
-        alert(`Account created for ${name} (${email}) as ${currentRole}!`);
+        localStorage.setItem('userRole', currentRole);
+        localStorage.setItem('userName', name);
+        localStorage.setItem('userEmail', email);
+        window.location.href = 'dashboard.html';
       } else {
-        alert(`Signed in as ${currentRole} (${email})`);
+        localStorage.setItem('userRole', currentRole);
+        localStorage.setItem('userEmail', email);
+        window.location.href = 'dashboard.html';
       }
-      
-      hideAuthForm();
     }
 
     hunterBtn.addEventListener('click', (e) => {
