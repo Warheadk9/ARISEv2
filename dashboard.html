@@ -1230,12 +1230,12 @@
   <script>
     // ===== YOUR FIREBASE CONFIG =====
     const firebaseConfig = {
-      apiKey: "AIzaSyD5RrLOsUpb8_iMqiPpXLWxbKv5_uMtjxk",
-      authDomain: "project-awakening-12b14.firebaseapp.com",
-      projectId: "project-awakening-12b14",
-      storageBucket: "project-awakening-12b14.firebasestorage.app",
-      messagingSenderId: "1071395495768",
-      appId: "1:1071395495768:web:3dd54163ffb24078e1586c"
+      apiKey: "AIzaSyCUrbsJh9jER3Rhl-YX44598OKTcky5Ncw",
+      authDomain: "the-awakening-f0aee.firebaseapp.com",
+      projectId: "the-awakening-f0aee",
+      storageBucket: "the-awakening-f0aee.appspot.com",
+      messagingSenderId: "774133878054",
+      appId: "1:774133878054:web:d660a991da47df1a3105e7"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -1254,15 +1254,12 @@
           if (doc.exists) {
             const data = doc.data();
             
-            // Update sidebar
             document.getElementById('userName').textContent = data.name || 'User';
             document.getElementById('userRole').textContent = data.role || 'Hunter';
             document.getElementById('userAvatar').textContent = (data.name || 'U').charAt(0).toUpperCase();
             
-            // Update header
             document.getElementById('greetingName').textContent = data.name || 'User';
             
-            // Update badge
             const badge = document.getElementById('roleBadge');
             badge.textContent = data.role || 'Hunter';
             if ((data.role || '').toLowerCase() === 'hunter') {
@@ -1271,7 +1268,6 @@
               badge.classList.add('ruler');
             }
             
-            // Update profile
             document.getElementById('profileName').textContent = data.name || 'User';
             document.getElementById('profileAvatar').textContent = (data.name || 'U').charAt(0).toUpperCase();
             document.getElementById('profileUser').textContent = user.email || 'user@email.com';
@@ -1279,7 +1275,6 @@
             document.getElementById('profileXp').textContent = data.xp || 0;
             document.getElementById('profileGold').textContent = (data.gold || 100) + ' 🪙';
             
-            // Update XP progress
             const xp = data.xp || 0;
             const nextXp = 5000;
             const progress = Math.min((xp / nextXp) * 100, 100);
@@ -1347,7 +1342,6 @@
         this.textContent = 'Claimed!';
         this.classList.add('claimed');
         
-        // Update XP and Gold in Firestore
         const user = auth.currentUser;
         if (user) {
           db.collection('users').doc(user.uid).update({
@@ -1355,7 +1349,6 @@
             gold: firebase.firestore.FieldValue.increment(7)
           }).then(() => {
             alert('🎉 Daily reward claimed! +14.0 XP & +7.0 Gold');
-            // Refresh page to show updated values
             window.location.reload();
           }).catch((error) => {
             console.error('Error updating rewards:', error);
@@ -1385,4 +1378,4 @@
     document.getElementById('currentDay').textContent = 'Today: ' + today;
   </script>
 </body>
-                                                   </html>
+</html>
