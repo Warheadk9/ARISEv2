@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · Hunter & Ruler</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      font-family: 'Inter', sans-serif;
+      background: #0b0f1a;
+      color: white;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      min-height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      overflow-y: auto;
+      transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 1000;
+    }
+
+    .sidebar.closed {
+      transform: translateX(-100%);
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 999;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .sidebar-brand .brand-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+    }
+
+    .sidebar-brand .brand-icon svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      stroke: #8ab4f8;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .sidebar-brand h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .sidebar-brand span {
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 400;
+      font-size: 0.7rem;
+      display: block;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 0.1rem;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .sidebar-nav .nav-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(255, 255, 255, 0.2);
+      margin-top: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      text-decoration: none;
+      transition: all 0.25s ease;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .sidebar-nav a:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .sidebar-nav a.active {
+      background: rgba(138, 180, 248, 0.12);
+      color: #8ab4f8;
+    }
+
+    .sidebar-nav a .nav-icon {
+      width: 1.3rem;
+      height: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-nav a .nav-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .sidebar-footer {
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .sidebar-footer .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .sidebar-footer .user-avatar {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      background: rgba(138, 180, 248, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #8ab4f8;
+    }
+
+    .sidebar-footer .user-details {
+      flex: 1;
+    }
+
+    .sidebar-footer .user-details .name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .sidebar-footer .user-details .role {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .sidebar-footer .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 0.6rem 1rem;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: rgba(255, 255, 255, 0.4);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-weight: 500;
+    }
+
+    .sidebar-footer .logout-btn:hover {
+      background: rgba(255, 70, 70, 0.1);
+      border-color: rgba(255, 70, 70, 0.2);
+      color: #ff6b6b;
+    }
+
+    .sidebar-footer .logout-btn .icon {
+      width: 1rem;
+      height: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sidebar-footer .logout-btn .icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 2rem 2.5rem;
+      background: radial-gradient(circle at 30% 20%, #141c30, #0b0f1a);
+      min-height: 100vh;
+      margin-left: 260px;
+      transition: margin-left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .main-content.expanded {
+      margin-left: 0;
+    }
+
+    .hamburger-btn {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 1001;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.6rem;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.25s ease;
+    }
+
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .hamburger-btn .icon {
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hamburger-btn .icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .main-content .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .main-content .page-header .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .main-content .page-header h2 {
+      font-weight: 600;
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .main-content .page-header .role-badge {
+      padding: 0.3rem 1rem;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(138, 180, 248, 0.12);
+      color: #8ab4f8;
+      border: 1px solid rgba(138, 180, 248, 0.15);
+      white-space: nowrap;
+    }
+
+    .main-content .page-header .role-badge.hunter {
+      background: rgba(220, 180, 120, 0.15);
+      color: #dbb47a;
+      border-color: rgba(220, 180, 120, 0.2);
+    }
+
+    .main-content .page-header .role-badge.ruler {
+      background: rgba(120, 180, 220, 0.15);
+      color: #78b4dc;
+      border-color: rgba(120, 180, 220, 0.2);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.3);
+      margin-bottom: 0.3rem;
+    }
+
+    .stat-card .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .stat-card .stat-icon {
+      float: right;
+      opacity: 0.2;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .stat-card .stat-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+    }
+
+    .action-section {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .action-section h3 {
+      font-weight: 600;
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 1rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .action-btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 40px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .action-btn.primary {
+      background: rgba(138, 180, 248, 0.15);
+      border-color: rgba(138, 180, 248, 0.2);
+      color: #8ab4f8;
+    }
+
+    .action-btn.primary:hover {
+      background: rgba(138, 180, 248, 0.25);
+    }
+
+    .action-btn .icon {
+      width: 1rem;
+      height: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-btn .icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hamburger-btn {
+        display: flex;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+        padding: 1.5rem;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 1.2rem;
+        padding-top: 4.5rem;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+      }
+
+      .stat-card {
+        padding: 1rem;
+      }
+
+      .stat-card .stat-value {
+        font-size: 1.4rem;
+      }
+
+      .main-content .page-header h2 {
+        font-size: 1.2rem;
+      }
+
+      .action-section {
+        padding: 1rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .action-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.6rem;
+      }
+
+      .stat-card {
+        padding: 0.8rem;
+      }
+
+      .stat-card .stat-value {
+        font-size: 1.2rem;
+      }
+
+      .stat-card .stat-label {
+        font-size: 0.6rem;
+      }
+
+      .stat-card .stat-icon {
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+
+      .main-content {
+        padding: 0.8rem;
+        padding-top: 4rem;
+      }
+
+      .main-content .page-header h2 {
+        font-size: 1rem;
+      }
+
+      .main-content .page-header .role-badge {
+        font-size: 0.6rem;
+        padding: 0.2rem 0.8rem;
+      }
+
+      .action-section {
+        padding: 0.8rem;
+      }
+
+      .action-section h3 {
+        font-size: 0.9rem;
+      }
+
+      .action-btn {
+        font-size: 0.75rem;
+        padding: 0.5rem 1rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+      }
+
+      .stat-card {
+        padding: 0.6rem;
+      }
+
+      .stat-card .stat-value {
+        font-size: 1rem;
+      }
+
+      .stat-card .stat-label {
+        font-size: 0.55rem;
+      }
+
+      .main-content .page-header h2 {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle sidebar">
+    <span class="icon">
+      <svg viewBox="0 0 24 24">
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </span>
+  </button>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Kingdom</h1>
+        <span>Realm Management</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Navigation</div>
+      <a href="#" class="active">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </span>
+        Overview
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </span>
+        Quests
+      </a>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
+        History
+      </a>
+      <div class="nav-label" style="margin-top:1rem;">Management</div>
+      <a href="#">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+        </span>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">H</div>
+        <div class="user-details">
+          <div class="name" id="userName">User</div>
+          <div class="role" id="userRole">Hunter</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">
+        <span class="icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </span>
+        Exit
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-content" id="mainContent">
+    <div class="page-header">
+      <div class="header-left">
+        <h2>Welcome back, <span id="greetingName">User</span></h2>
+      </div>
+      <span class="role-badge" id="roleBadge">Hunter</span>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="stat-label">Warriors</div>
+        <div class="stat-value">1,284</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="stat-label">Active Hunts</div>
+        <div class="stat-value">47</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </div>
+        <div class="stat-label">Discoveries</div>
+        <div class="stat-value">312</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        <div class="stat-label">Missions Complete</div>
+        <div class="stat-value">89%</div>
+      </div>
+    </div>
+
+    <div class="action-section">
+      <h3>Quick Actions</h3>
+      <div class="action-buttons">
+        <button class="action-btn primary">
+          <span class="icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </span>
+          New Quest
+        </button>
+        <button class="action-btn">
+          <span class="icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </span>
+          Export Records
+        </button>
+        <button class="action-btn">
+          <span class="icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 8v4M12 16h.01"/>
+            </svg>
+          </span>
+          Help & Guidance
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      const role = localStorage.getItem('userRole') || 'Hunter';
+      const name = localStorage.getItem('userName') || 'User';
+      const email = localStorage.getItem('userEmail') || 'user@example.com';
+
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userRole').textContent = role;
+      document.getElementById('greetingName').textContent = name;
+      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+
+      const badge = document.getElementById('roleBadge');
+      badge.textContent = role;
+      if (role.toLowerCase() === 'hunter') {
+        badge.classList.add('hunter');
+      } else if (role.toLowerCase() === 'ruler') {
+        badge.classList.add('ruler');
+      }
+
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const hamburger = document.getElementById('hamburgerBtn');
+      const mainContent = document.getElementById('mainContent');
+
+      function toggleSidebar() {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+        mainContent.classList.toggle('expanded');
+      }
+
+      function closeSidebar() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        mainContent.classList.remove('expanded');
+      }
+
+      hamburger.addEventListener('click', toggleSidebar);
+      overlay.addEventListener('click', closeSidebar);
+
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+      });
+
+      document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          document.querySelectorAll('.sidebar-nav a').forEach(l => l.classList.remove('active'));
+          this.classList.add('active');
+          if (window.innerWidth <= 768) {
+            closeSidebar();
+          }
+        });
+      });
+
+      document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          alert('Action: ' + this.textContent.trim());
+        });
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+          closeSidebar();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
