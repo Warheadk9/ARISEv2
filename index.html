@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The System · Awakening Arise</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at 20% 30%, #1f2b4b, #0b0f1a);
+      padding: 1.5rem;
+    }
+
+    .glass-panel {
+      max-width: 420px;
+      width: 100%;
+      padding: 3rem 2rem;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px) saturate(180%);
+      -webkit-backdrop-filter: blur(8px) saturate(180%);
+      border-radius: 3.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.06);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      text-align: center;
+      position: relative;
+    }
+
+    .glass-panel .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .glass-panel .brand-icon {
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+    }
+
+    .glass-panel .brand-icon svg {
+      width: 1.8rem;
+      height: 1.8rem;
+      stroke: #8ab4f8;
+      fill: none;
+      stroke-width: 2;
+    }
+
+    .glass-panel h1 {
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.02em;
+    }
+
+    .glass-panel .subtitle {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+    }
+
+    .glass-panel h2 {
+      font-weight: 400;
+      font-size: 1.1rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 2.5rem;
+      word-spacing: 0.5em;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.8rem;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .glass-btn {
+      width: 100%;
+      max-width: 280px;
+      padding: 1.2rem 1.8rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+      color: white;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px) saturate(200%);
+      -webkit-backdrop-filter: blur(12px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 60px;
+      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      transition: all 0.25s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2), transparent 70%);
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    .btn-hunter {
+      background: rgba(220, 180, 120, 0.18);
+      border-color: rgba(255, 215, 150, 0.35);
+      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 215, 150, 0.4);
+    }
+    .btn-hunter:hover {
+      background: rgba(220, 180, 120, 0.35);
+      border-color: rgba(255, 215, 150, 0.7);
+      transform: scale(1.03);
+      box-shadow: 0 16px 35px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 215, 150, 0.2);
+    }
+
+    .btn-ruler {
+      background: rgba(120, 180, 220, 0.18);
+      border-color: rgba(150, 215, 255, 0.35);
+      box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(150, 215, 255, 0.4);
+    }
+    .btn-ruler:hover {
+      background: rgba(120, 180, 220, 0.35);
+      border-color: rgba(150, 215, 255, 0.7);
+      transform: scale(1.03);
+      box-shadow: 0 16px 35px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(150, 215, 255, 0.2);
+    }
+
+    .glass-btn:active {
+      transform: scale(0.96);
+      transition-duration: 0.08s;
+    }
+
+    .glass-btn .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.7rem;
+      height: 1.7rem;
+      flex-shrink: 0;
+    }
+
+    .glass-btn .icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .glass-btn:hover::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 60px;
+      background: conic-gradient(from 120deg at 50% 50%, transparent, rgba(255,255,255,0.1), transparent 60%);
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glass-btn span {
+      position: relative;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .glass-btn .label {
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .credit {
+      margin-top: 2.5rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.15);
+      transition: color 0.2s;
+    }
+    .credit:hover {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .glass-btn:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.6);
+      outline-offset: 4px;
+    }
+
+    .auth-form {
+      display: none;
+      flex-direction: column;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+      animation: fadeSlideIn 0.4s ease;
+    }
+
+    .auth-form.active {
+      display: flex;
+    }
+
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .auth-form h3 {
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+      font-size: 1.4rem;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.3rem;
+    }
+
+    .auth-form .subtitle {
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 0.85rem;
+      font-weight: 400;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-form input {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 40px;
+      color: white;
+      font-size: 1rem;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.25s ease;
+      outline: none;
+    }
+
+    .auth-form input::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 400;
+    }
+
+    .auth-form input:focus {
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+    }
+
+    .auth-form .auth-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .auth-form .auth-btn {
+      padding: 0.9rem 1.8rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      color: white;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    .auth-form .auth-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.02);
+    }
+
+    .auth-form .auth-btn:active {
+      transform: scale(0.97);
+    }
+
+    .auth-form .auth-btn .icon {
+      width: 1.2rem;
+      height: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-form .auth-btn .icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .toggle-wrapper {
+      text-align: center;
+      margin-top: 0.2rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      user-select: none;
+    }
+
+    .toggle-highlight {
+      color: #8ab4f8;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(138, 180, 248, 0.3);
+      cursor: pointer;
+      transition: all 0.25s ease;
+      padding: 0.1rem 0.2rem;
+      border-radius: 4px;
+      background: transparent;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline;
+    }
+
+    .toggle-highlight:hover {
+      color: #a8c9ff;
+      text-decoration-color: rgba(138, 180, 248, 0.6);
+      background: rgba(138, 180, 248, 0.08);
+    }
+
+    .toggle-highlight:active {
+      transform: scale(0.96);
+    }
+
+    .toggle-highlight:focus-visible {
+      outline: 2px solid rgba(138, 180, 248, 0.4);
+      outline-offset: 2px;
+    }
+
+    .toggle-text {
+      display: inline;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 1.2rem;
+      left: 1.2rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 30px;
+      padding: 0.35rem 0.9rem 0.35rem 0.7rem;
+      color: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      transition: all 0.25s ease;
+      display: none;
+      align-items: center;
+      gap: 0.3rem;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      letter-spacing: 0.02em;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.7);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .back-btn:active {
+      transform: scale(0.95);
+    }
+
+    .back-btn .icon {
+      width: 0.9rem;
+      height: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .back-btn .icon svg {
+      width: 100%;
+      height: 100%;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .back-btn.visible {
+      display: inline-flex;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.8rem;
+      margin-top: -0.5rem;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    @media (max-width: 480px) {
+      .glass-panel {
+        padding: 2rem 1.2rem;
+        border-radius: 2.5rem;
+      }
+      .glass-panel h2 {
+        font-size: 0.85rem;
+        letter-spacing: 0.2em;
+        margin-bottom: 2rem;
+      }
+      .glass-btn {
+        max-width: 240px;
+        padding: 1rem 1.2rem;
+        font-size: 1.3rem;
+        border-radius: 50px;
+      }
+      .glass-btn .icon {
+        width: 1.4rem;
+        height: 1.4rem;
+      }
+      .auth-form {
+        max-width: 280px;
+      }
+      .back-btn {
+        top: 0.9rem;
+        left: 0.9rem;
+        padding: 0.3rem 0.7rem 0.3rem 0.6rem;
+        font-size: 0.65rem;
+      }
+      .back-btn .icon {
+        width: 0.8rem;
+        height: 0.8rem;
+      }
+      .toggle-wrapper {
+        font-size: 0.75rem;
+      }
+      .toggle-highlight {
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .glass-panel {
+        padding: 1.5rem 0.8rem;
+      }
+      .button-group {
+        gap: 1.2rem;
+      }
+      .glass-btn {
+        max-width: 200px;
+        font-size: 1.1rem;
+        padding: 0.8rem 0.8rem;
+      }
+      .glass-btn .icon {
+        width: 1.2rem;
+        height: 1.2rem;
+      }
+      .auth-form {
+        max-width: 240px;
+      }
+      .back-btn {
+        top: 0.7rem;
+        left: 0.7rem;
+        padding: 0.25rem 0.6rem 0.25rem 0.5rem;
+        font-size: 0.6rem;
+      }
+      .back-btn .icon {
+        width: 0.7rem;
+        height: 0.7rem;
+      }
+      .toggle-wrapper {
+        font-size: 0.7rem;
+      }
+      .toggle-highlight {
+        font-size: 0.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="glass-panel" id="app">
+  <button class="back-btn" id="backBtn">
+    <span class="icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 12H5" />
+        <path d="M12 19l-7-7 7-7" />
+      </svg>
+    </span>
+    Back
+  </button>
+
+  <div id="mainMenu">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <h1>The System</h1>
+    </div>
+    <div class="subtitle">Awakening Arise</div>
+    <h2>✦ Choose Your Path ✦</h2>
+    <div class="button-group">
+      <button class="glass-btn btn-hunter" id="hunterBtn" aria-label="Hunter">
+        <span>
+          <span class="icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </span>
+          <span class="label">Hunter</span>
+        </span>
+      </button>
+
+      <button class="glass-btn btn-ruler" id="rulerBtn" aria-label="Ruler">
+        <span>
+          <span class="icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 3v18h18" />
+              <path d="M18 7v2" />
+              <path d="M14 7v6" />
+              <path d="M10 7v10" />
+              <path d="M6 7v14" />
+            </svg>
+          </span>
+          <span class="label">Ruler</span>
+        </span>
+      </button>
+    </div>
+    <div class="credit">The System Choose You</div>
+  </div>
+
+  <div class="auth-form" id="authForm">
+    <h3 id="formTitle">Create Account</h3>
+    <div class="subtitle" id="formSubtitle">Join as <span id="roleDisplay">Hunter</span></div>
+    
+    <input type="text" id="nameInput" placeholder="Username" />
+    <input type="email" id="emailInput" placeholder="Email address" />
+    <input type="password" id="passwordInput" placeholder="Password (min 6 characters)" />
+    <div class="error-msg" id="errorMsg"></div>
+    
+    <div class="auth-actions">
+      <button class="auth-btn" id="submitAuthBtn">
+        <span class="icon">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        </span>
+        <span id="submitLabel">Sign Up</span>
+      </button>
+      
+      <div class="toggle-wrapper">
+        <span class="toggle-text" id="togglePrefix">Already have an account?</span>
+        <button class="toggle-highlight" id="toggleHighlightBtn">Sign In</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== YOUR FIREBASE CONFIG =====
+  const firebaseConfig = {
+    apiKey: "AIzaSyCUrbsJh9jER3Rhl-YX44598OKTcky5Ncw",
+    authDomain: "the-awakening-f0aee.firebaseapp.com",
+    projectId: "the-awakening-f0aee",
+    storageBucket: "the-awakening-f0aee.appspot.com",
+    messagingSenderId: "774133878054",
+    appId: "1:774133878054:web:d660a991da47df1a3105e7"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // ===== DOM ELEMENTS =====
+  const mainMenu = document.getElementById('mainMenu');
+  const authForm = document.getElementById('authForm');
+  const backBtn = document.getElementById('backBtn');
+  const hunterBtn = document.getElementById('hunterBtn');
+  const rulerBtn = document.getElementById('rulerBtn');
+  const formTitle = document.getElementById('formTitle');
+  const formSubtitle = document.getElementById('formSubtitle');
+  const roleDisplay = document.getElementById('roleDisplay');
+  const submitLabel = document.getElementById('submitLabel');
+  const toggleHighlightBtn = document.getElementById('toggleHighlightBtn');
+  const togglePrefix = document.getElementById('togglePrefix');
+  const submitAuthBtn = document.getElementById('submitAuthBtn');
+  const nameInput = document.getElementById('nameInput');
+  const emailInput = document.getElementById('emailInput');
+  const passwordInput = document.getElementById('passwordInput');
+  const errorMsg = document.getElementById('errorMsg');
+
+  let currentRole = 'Hunter';
+  let isSignIn = false;
+
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      window.location.href = 'dashboard.html';
+    }
+  });
+
+  function showAuthForm(role) {
+    currentRole = role;
+    roleDisplay.textContent = role;
+    mainMenu.style.display = 'none';
+    authForm.classList.add('active');
+    backBtn.classList.add('visible');
+    errorMsg.classList.remove('show');
+    isSignIn = false;
+    updateFormMode();
+  }
+
+  function hideAuthForm() {
+    mainMenu.style.display = 'block';
+    authForm.classList.remove('active');
+    backBtn.classList.remove('visible');
+    nameInput.value = '';
+    emailInput.value = '';
+    passwordInput.value = '';
+    errorMsg.classList.remove('show');
+    isSignIn = false;
+    updateFormMode();
+  }
+
+  function updateFormMode() {
+    const toggleWrapper = document.querySelector('.toggle-wrapper');
+
+    // Rulers never self-signup — admin accounts are only ever created
+    // manually, so this path is sign-in only, no toggle to switch modes.
+    if (currentRole === 'Ruler') {
+      isSignIn = true;
+      formTitle.textContent = 'Ruler Sign In';
+      formSubtitle.textContent = 'Sign in as Ruler';
+      submitLabel.textContent = 'Sign In';
+      nameInput.style.display = 'none';
+      if (toggleWrapper) toggleWrapper.style.display = 'none';
+      return;
+    }
+
+    if (toggleWrapper) toggleWrapper.style.display = '';
+    if (isSignIn) {
+      formTitle.textContent = 'Welcome Back';
+      formSubtitle.textContent = `Sign in as ${currentRole}`;
+      submitLabel.textContent = 'Sign In';
+      togglePrefix.textContent = "Don't have an account?";
+      toggleHighlightBtn.textContent = 'Sign Up';
+      nameInput.style.display = 'none';
+    } else {
+      formTitle.textContent = 'Create Account';
+      formSubtitle.textContent = `Join as ${currentRole}`;
+      submitLabel.textContent = 'Sign Up';
+      togglePrefix.textContent = 'Already have an account?';
+      toggleHighlightBtn.textContent = 'Sign In';
+      nameInput.style.display = 'block';
+    }
+  }
+
+  function showError(message) {
+    errorMsg.textContent = message;
+    errorMsg.classList.add('show');
+  }
+
+  function handleAuthSubmit() {
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+    
+    if (!email || !password) {
+      showError('Please fill in all required fields.');
+      return;
+    }
+
+    if (password.length < 6) {
+      showError('Password must be at least 6 characters.');
+      return;
+    }
+
+    errorMsg.classList.remove('show');
+    submitAuthBtn.disabled = true;
+    submitAuthBtn.textContent = 'Loading...';
+
+    if (currentRole === 'Ruler') {
+      // Rulers only ever sign in — admin accounts are created manually
+      // (e.g. via the Firebase console), never through self-signup here.
+      auth.signInWithEmailAndPassword(email, password)
+        .then((cred) => db.collection('users').doc(cred.user.uid).get())
+        .then((doc) => {
+          const data = doc.data();
+          if (!data || data.role !== 'admin') {
+            return auth.signOut().then(() => {
+              throw new Error('This account does not have Ruler access.');
+            });
+          }
+          window.location.href = 'dashboard.html';
+        })
+        .catch((error) => {
+          submitAuthBtn.disabled = false;
+          submitAuthBtn.textContent = 'Sign In';
+          showError(error.message);
+        });
+      return;
+    }
+
+    if (!isSignIn) {
+      const username = nameInput.value.trim();
+      if (!username) {
+        showError('Please enter a username.');
+        submitAuthBtn.disabled = false;
+        submitAuthBtn.textContent = 'Sign Up';
+        return;
+      }
+
+      // Create (and authenticate) the account first, since Firestore rules
+      // require auth for reads — only after auth do we check for a colliding
+      // username, then append a random 4-digit suffix so usernames never collide.
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const uid = userCredential.user.uid;
+          return db.collection('users').where('username', '==', username).get().then((existingSnap) => {
+            const finalUsername = existingSnap.empty ? username : username + Math.floor(1000 + Math.random() * 9000);
+            const newUser = {
+              uid: uid, email: email, username: finalUsername,
+              role: 'hunter', rank: 'E', xp: 0, gold: 100, hp: 100, maxHP: 100,
+              inventory: [], itemStats: {}, itemCounts: {},
+              dungeonRaidCount: 0, dungeonLastReset: new Date().toDateString(), dungeonNextRaidTime: null
+            };
+            return db.collection('users').doc(uid).set(newUser);
+          });
+        })
+        .then(() => {
+          submitAuthBtn.disabled = false;
+          submitAuthBtn.textContent = 'Sign Up';
+          window.location.href = 'dashboard.html';
+        })
+        .catch((error) => {
+          submitAuthBtn.disabled = false;
+          submitAuthBtn.textContent = 'Sign Up';
+          showError(error.message);
+        });
+    } else {
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+          submitAuthBtn.disabled = false;
+          submitAuthBtn.textContent = 'Sign In';
+          window.location.href = 'dashboard.html';
+        })
+        .catch((error) => {
+          submitAuthBtn.disabled = false;
+          submitAuthBtn.textContent = 'Sign In';
+          showError(error.message);
+        });
+    }
+  }
+
+  hunterBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    showAuthForm('Hunter');
+  });
+
+  rulerBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    showAuthForm('Ruler');
+  });
+
+  backBtn.addEventListener('click', hideAuthForm);
+
+  toggleHighlightBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (currentRole === 'Ruler') return;
+    isSignIn = !isSignIn;
+    errorMsg.classList.remove('show');
+    updateFormMode();
+  });
+
+  submitAuthBtn.addEventListener('click', handleAuthSubmit);
+
+  document.querySelectorAll('.auth-form input').forEach(input => {
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        handleAuthSubmit();
+      }
+    });
+  });
+
+  document.querySelectorAll('.glass-btn, .auth-btn, .toggle-highlight').forEach(btn => {
+    btn.addEventListener('touchstart', () => {}, { passive: true });
+  });
+</script>
+
+</body>
+        </html>
